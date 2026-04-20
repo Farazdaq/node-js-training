@@ -1,0 +1,34 @@
+const express = require("express");
+const app = express(); // making an express app
+app.use(express.static("public")); // serving static files form public folder
+const expressServer = app.listen(3000);
+
+const socketIo = require("socket.io"); // loading socket io server using socketIo function to create a new socket io server
+
+const { Server } = require("socket.io"); // loading socket io server using Server constructor to create a new socket io server
+
+//const io = socketIo(expressServer, {
+
+const io = new Server(expressServer, {
+  cors: ["http://localhost:3000"],
+}); // create socket io server and passing the express server to it
+
+// On() allows  the server to listen for events form the client.
+// emit() allows the server to send events to the client.
+
+io.on("connect", (socket) => {
+  console.log(socket.id, "A new client has connected to the server");
+
+  // 1st argument is the name of the event.
+  // 2nd argument is the data that we want to send to the client.
+
+  // this will will emit only to welcome socket that is connected to the server.
+  socket.emit("welcome", [1, 2, 3]); // pushing an event to the client with data on event name "welcome"
+
+  // this will emit to all the clients that are connected to the server.
+  io.emit("hi", "hello, everyone");
+
+  socket.on("thanks", (data) => {
+    console.log("there is it:", data);
+  });
+});
